@@ -72,12 +72,12 @@
 	2.7.5  - 2003/03/05 (released 2.7.5)
 	2.7.6  - 2003/08/19 (rar) changed code to print out server address upon successful start up
 						(rar) made modifications to log_printf error messages in several spots, as well as cleaned up some verbiage, more work to be done
-	2.7.6  - 2003/12/07 (rar) made changes that caused access violations while loading files with long names. change wsprintf to strncpy. Also changed some test to make it less confusing to figure out how to use configuration files.
+	2.7.7  - 2003/12/07 (rar) made changes that caused access violations while loading files with long names. change wsprintf to strncpy. Also changed some test to make it less confusing to figure out how to use configuration files.
   
 */
 
 #define DEBUG				0
-#define SERV_VER 			"2.7.6 (Built: " __DATE__ " " __TIME__ ")"
+#define SERV_VER 			"2.7.7 (Built: " __DATE__ " " __TIME__ ")"
 #define SERV_NAME			"WWWinamp"
 #define SERV_NAME_LONG 		"WWWinamp Remote Control Server"
 #define COPYRIGHT 			"(C) Copyright 1998-2001 Nullsoft, Inc. All Rights Reserved."

@@ -1,5 +1,5 @@
 !define APP_VER_MAJOR 2
-!define APP_VER_MINOR 7.6
+!define APP_VER_MINOR 7.7
 !define APP_PUBLISHER "Halo 8 Productions"
 !define APP_NAME "WWWinamp"
 !define APP_FOLDER "wwwinamp"

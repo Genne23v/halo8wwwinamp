@@ -72,6 +72,7 @@
 	2.7.5  - 2003/03/05 (released 2.7.5)
 	2.7.6  - 2003/08/19 (rar) changed code to print out server address upon successful start up
 						(rar) made modifications to log_printf error messages in several spots, as well as cleaned up some verbiage, more work to be done
+	2.7.6  - 2003/12/07 (rar) made changes that caused access violations while loading files with long names. change wsprintf to strncpy. Also changed some test to make it less confusing to figure out how to use configuration files.
   
 */
 
@@ -258,7 +259,7 @@ int main(int argc, char **argv) {
 	while (q >= g_working_name && *q != '.') q--; *q=0;
 	
 	// print out header to show what's going on...
-	printf("\n" "-- " SERV_NAME_LONG " " SERV_VER "\n" "-- " BRANDING_COPYRIGHT "\n" "-- " COPYRIGHT "\n" "-- Use \"%s filename.ini\" to specify an ini file.\n\n", g_working_exe);
+	printf("\n" "-- " SERV_NAME_LONG " " SERV_VER "\n" "-- " BRANDING_COPYRIGHT "\n" "-- " COPYRIGHT "\n" "-- Use \"%s config-file.ini\" to specify an configuration file.\n\n", g_working_exe);
 
 	if (argc > 1) { // our only argument to wwwinamp should be the config file name
 		if ( strstr(argv[1],"\\") ) strcpy( g_config_file, argv[1] );			// appears to be in a separate directory (\\ = \) so use whole string
@@ -906,15 +907,15 @@ int _deepcompare( const char *name1, const char *name2, int debug ) {
 	int dirCmp;
 	char *st1 = strstr( name1, "\\" ), d1[MAX_PATH], *p1;
 	char *st2 = strstr( name2, "\\" ), d2[MAX_PATH], *p2;
-	if ( !st1 && !st2 ) return stricmp( name1, name2 ); // both are files, evaluate using stricmp.
+	if ( !st1 && !st2 ) return strnicmp( name1, name2, MAX_PATH ); // both are files, evaluate using stricmp.
 	if (  st1 && !st2 ) return 1;	// 1st file is a dir and 2nd isn't.  2nd gets precedence
 	if ( !st1 &&  st2 ) return -1;	// 2nd file is a dir and 1st isn't.  1st gets precedence
 	// now we are getting tricky...
 	// 1st and 2nd are dirs, we need to compare the 2 dir names and 
 	// if they are the same, recurse, else return the stricmp.
-	wsprintf( d1, name1); p1 = d1; while (p1 && *p1++) if (*p1 == '\\') *p1=0; // get 1st dir name in 1st
-	wsprintf( d2, name2); p2 = d2; while (p2 && *p2++) if (*p2 == '\\') *p2=0; // get 1st dir name in 2nd
-	dirCmp = stricmp( d1, d2 );
+	strncpy( d1, name1, MAX_PATH); p1 = d1; while (p1 && *p1++) if (*p1 == '\\') *p1=0; // get 1st dir name in 2nd
+	strncpy( d2, name2, MAX_PATH); p2 = d2; while (p2 && *p2++) if (*p2 == '\\') *p2=0; // get 1st dir name in 2nd
+	dirCmp = strnicmp( d1, d2, MAX_PATH );
 	if (dirCmp) return dirCmp;
 	else return _deepcompare( ++st1, ++st2, debug );
 	}
@@ -924,8 +925,8 @@ int _compare( const dbType *arg1, const dbType *arg2 ) {
 	char file1[MAX_PATH];
 	char file2[MAX_PATH];
 	int test;
-	wsprintf(file1, arg1->file);
-	wsprintf(file2, arg2->file);
+	strncpy(file1, arg1->file, MAX_PATH);
+	strncpy(file2, arg2->file, MAX_PATH);
 	test = _deepcompare( file1, file2, 0 );
 	return test;
 	}
@@ -1241,7 +1242,7 @@ void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, stru
 								char pathArg[MAX_PATH];
 								char dir[MAX_PATH];
 								char *p;
-								wsprintf( dir, s, strlen(dir) );
+								strncpy( dir, s, MAX_PATH );
 								p = dir + strlen(dir);
 								while (p >= dir && *p != '\\') p--;
 								*p=0;
@@ -1317,7 +1318,7 @@ void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, stru
 							while (*fnp == ' ') fnp++;
 							if (*fnp == '#') continue;
 							if ( x == track) {
-								wsprintf( s, fnp );
+								strncpy( s, fnp, MAX_PATH );
 								break;
 								}
 							x++;
@@ -1654,7 +1655,7 @@ int hasCoverArt( char *fn ) {
 	char	coverArtDir[MAX_PATH];
 	char	coverArtFile[MAX_PATH]	= "";
 	char	*p;
-	wsprintf( coverArtDir, fn) ;
+	strncpy( coverArtDir, fn, MAX_PATH );
 	p = coverArtDir + strlen(coverArtDir);
 	while (p >= coverArtDir && *p != '\\') p--;
 	*++p=0;

@@ -1,5 +1,5 @@
-//Psuedo IPC for frontends for Winamp v1.55+ (< 2.0)
-
+// Psuedo IPC for frontends for Winamp v1.55+ (< 2.0)
+// http://www.winamp.com/nsdn/winamp2x/dev/sdk/api.jhtml
 
 #define WM_WA_IPC WM_USER
 // messages are sent to the winamp window using:

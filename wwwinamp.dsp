@@ -52,9 +52,9 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wsock32.lib /nologo /subsystem:console /machine:I386
 # Begin Special Build Tool
+OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Desc=cleaning release dir
-PostBuild_Cmds=del "Release\MAIN.obj"	del "Release\vc60.idb"	del "Release\wwwinamp.pch"	move Release\halo8.url "Release\Halo 8 Productions.url"
+PostBuild_Cmds=move $(OutDir)\halo8.url "$(OutDir)\Halo 8 Productions.url"
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "wwwinamp - Win32 Debug"
@@ -80,6 +80,11 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wsock32.lib th32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
+# Begin Special Build Tool
+OutDir=.\Debug
+SOURCE="$(InputPath)"
+PostBuild_Cmds=echo move $(OutDir)\halo8.url "$(OutDir)\Halo 8 Productions.url" 	move $(OutDir)\halo8.url "$(OutDir)\Halo 8 Productions.url"	echo copy /y wwwinamp-ruiner.ini $(OutDir)\wwwinamp.ini	copy /y .\wwwinamp-local.ini $(OutDir)\wwwinamp.ini
+# End Special Build Tool
 
 !ENDIF 
 
@@ -123,6 +128,35 @@ SOURCE=.\IPC_PE.H
 # Begin Group "static files"
 
 # PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\controls.gif
+
+!IF  "$(CFG)" == "wwwinamp - Win32 Release"
+
+# Begin Custom Build - copy $(InputPath)
+OutDir=.\Release
+InputPath=.\controls.gif
+
+"$(OutDir)/$(InputPath)" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy $(InputPath) "$(OutDir)/$(InputPath)"
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "wwwinamp - Win32 Debug"
+
+# Begin Custom Build - copy $(InputPath)
+OutDir=.\Debug
+InputPath=.\controls.gif
+
+"$(OutDir)/$(InputPath)" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy $(InputPath) "$(OutDir)/$(InputPath)"
+
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
 # Begin Source File
 
 SOURCE=.\halo8.ico

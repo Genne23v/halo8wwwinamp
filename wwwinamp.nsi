@@ -1,5 +1,5 @@
 !define APP_VER_MAJOR 2
-!define APP_VER_MINOR 7.2
+!define APP_VER_MINOR 7.3a
 !define APP_PUBLISHER "Halo 8 Productions"
 !define APP_NAME "WWWinamp"
 !define APP_FOLDER "wwwinamp"
@@ -9,7 +9,7 @@
 ; The name of the installer
 Name "${APP_LONGNAME}"
 
-; The file to write
+; The file to write-+
 OutFile "Halo8WWWinamp-${APP_VER_MAJOR}.${APP_VER_MINOR}.exe"
 
 ; The text to prompt the user to enter a directory
@@ -27,7 +27,7 @@ InstallDir "$PROGRAMFILES\${APP_PUBLISHER}\${APP_FOLDER}"
 InstallDirRegKey HKLM "SOFTWARE\${APP_PUBLISHER}\${APP_FOLDER}" "Install_Dir"
 
 ; Making mY Shit pretty!
-; Icon "halo8.ico"
+Icon "halo8.ico"
 ShowInstDetails show
 ShowUninstDetails show
 InstProgressFlags colored
@@ -50,6 +50,7 @@ Section "${APP_NAME} (required)"
 	File wwwinamp.js
 	File readme_nullsoft.txt
 	File readme.txt
+	File controls.gif
 
 	IfFileExists "$INSTDIR\wwwinamp.ini" 0 WriteAsNewName
 		File /oname=wwwinamp_${APP_VER_MAJOR}.${APP_VER_MINOR}.ini wwwinamp.ini

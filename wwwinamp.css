@@ -5,8 +5,8 @@ FRAME {
 
 PRE {
 	font-family: 				Lucida Console, Courier;
-	font-size: 					10 px;
-	line-height: 				130%
+	font-size: 					75%;
+	line-height: 				120%;
 	}
 A:link {
 	color: 						#ffcc33;
@@ -20,13 +20,17 @@ A:visited {
 
 A:hover {
 	color: 						#FFFF00;
-	text-decoration: 			none;
+	text-decoration: 			underline;
 	}
 
 BODY {
 	font-family: 				Verdana;
-	font-size: 					10 px; 
+	overflow-X:					hidden;
+	font-size: 					90%; 
 	color: 						#ffffff;
+	}
+BODY.WWWinamp_left {
+	background-color: 			#224466;
 	scrollbar-3dlight-color: 	#ffffff;
 	scrollbar-highlight-color: 	#335577;
 	scrollbar-face-color: 		#335577;
@@ -35,13 +39,17 @@ BODY {
 	scrollbar-arrow-color: 		#FFFFFF;
 	scrollbar-track-color: 		#113355;
 	}
-BODY.WWWinamp_left {
-	background-color: 			#224466;
-	}
 BODY.WWWinamp_right {
  	background-color: 			#000000;
+	scrollbar-3dlight-color: 	#FFCC00;
+	scrollbar-highlight-color: 	#000000;
+	scrollbar-face-color: 		#000000;
+	scrollbar-shadow-color: 	#000000;
+	scrollbar-darkshadow-color: #FFCC00;
+	scrollbar-arrow-color: 		#FFCC00;
+	scrollbar-track-color: 		#666666;
 	}
-BODY.WWWinamp_middle {
+BODY.WWWinamp_control {
 	padding:					0px;
 	margin:						0px;
  	background-color: 			#ffcc33;
@@ -50,7 +58,7 @@ BODY.WWWinamp_middle {
 
 TD {
 	font-family: 				Tahoma,Verdana,Arial; 
-	font-size: 					10 px; 
+	font-size: 					90%;
 	vertical-align:				middle;
 	}
 TD.WWWinamp_left {
@@ -63,17 +71,21 @@ TD.WWWinamp_right {
 INPUT {
 	background-color: 			#000000; 
 	font-family: 				Tahoma,Verdana,Arial; 
-	font-size: 					8pt; 
+	font-size: 					75%; 
 	font-weight: 				bold;
 	color: 						#FFFF00;
 	border: 					1px #FFCC33 solid; 
 	}
+.footer {
+	font-family: 				Verdana,Arial; 
+	font-size: 					75%;
+	}
 .symbols {
-	font-size:					14px; 
+	font-size:					120%; 
 	font-family:				WebDings;
 	}
 .symbols_resize {
-	font-size:					14px; 
+	font-size:					120%; 
 	font-family:				WebDings;
 	}
 A:link.symbols_resize {
@@ -92,23 +104,32 @@ A:hover.symbols_resize {
 	text-decoration: 			none;
 	}
 
-.control {
-	background-color: 			#335577;
+.current {
+	background-color: 			#990000;
 	border: 					1px solid;
-	padding:					10px;
+	padding:					4;
 	}
 .CurrentSong {
 	color: 						#FFFF00;
 	}
 
 .resizeControl {
-	position:					relative;
-	top: 						-8;
-	line-height:				1;
+	border:						0px;
+	border-collapse:			collapse;
+	margin:						0px;
+	padding:					0px;
+	font-family: 				Verdana,Arial; 
+	font-size:					70%;
+	font-weight: 				bold;
+	color: 						#663300;
+	vertical-align:				top;
+	}
+.resizeControl a, .resizeControl a:visited, .resizeControl a:hover {
+	color: 						#000000;
 	}
 .sI {
 	background-color:			#FFFFCC;
-	font-size:					10px;
+	font-size:					90%;
 	border:						1px #000000 solid;
 	color:						#000000;
 	padding:					3px;

@@ -16,8 +16,11 @@
 	2. Altered source versions must be plainly marked as such, and must not be
 	   misrepresented as being the original software.
 	3. This notice may not be removed or altered from any source distribution.
+	======================================================================================================================
 
-	CHANGELOG
+	
+	C H A N G E   L O G
+	
 	2.5.d  - ??
 
 	2.6.02 - 2002/06/14	(rar) Lots o stuff has changed.   Includes support for *.css file., change some of the way
@@ -37,21 +40,29 @@
                         (rar) printf statement to clear the line in the console when MakeDB is run
                         (rar) removed call to link *.js file since functions are only for windows CE and are commented out at 
 						      the moment.  For some reason, the functions within were causing javascript errors
-                          
+    2.7.3  - 2003/01/12 (rar) added abiltiy to rescan files
+						(rar) modified the layout to include controls in middle frame
+						(rar) added 'listen' feature, which allows user to listen to the shoutcast stream directly from wwwinamp, and not have to visit the shoutcast server
+						(rar) sprinkled a few comments here and there
+                        (rar) change font size to use %, not px
+						(rar) updated copyright statement
+
+						
 */
 
-#define SERV_VER 			"2.7.2 (Built: " __DATE__ " " __TIME__ ")"
+#define SERV_VER 			"2.7.3 (Built: " __DATE__ " " __TIME__ ")"
 #define SERV_NAME			"WWWinamp"
 #define SERV_NAME_LONG 		"WWWinamp Remote Control Server"
 #define COPYRIGHT 			"(C) Copyright 1998-2001 Nullsoft, Inc. All Rights Reserved."
 #define BRANDING 			"Halo 8 Productions"
-#define BRANDING_URL 		"http://www.halo8.com/code/"
-#define BRANDING_COPYRIGHT	"(C) Copyright 2001-2002 Halo 8 Productions, Inc. All Rights Reserved."
+#define BRANDING_URL 		"http://projects.halo8.net/"
+#define BRANDING_COPYRIGHT	"(C) Copyright 2002-2003 Halo 8 Productions, Inc. All Rights Reserved."
 
 #define ADMIN_URL			"/mp3j"
 #define STYLE_URL			"/wwwinamp.css"
 #define JS_URL				"/wwwinamp.js"
 #define ROBOTS_URL			"/robots.txt"
+#define CONTROL_URL			"/controls.gif"
 #define COVER_URL			"folder.jpg"
 
 /*	======================================================================================================================
@@ -63,7 +74,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
-#include <stdarg.h>
+#include <stdarg.h>     // allows passing an unknown number parameters
 #include <signal.h>
 #include <process.h>
 #include <time.h>
@@ -184,6 +195,7 @@ int main(int argc, char **argv) {
 	// nono...if you do q = path....then *q will equal path[0] then they added strlen so it would get to the end of the path
 	// so basically it's "while (q >- beginning of string, check if pointer is "\"...if not decrement q.....
 	GetModuleFileName( NULL, g_working_full, MAX_PATH );
+	// strncpy(s, t, n) copy n chars from s to t
 	strncpy( g_working_dir,  g_working_full, MAX_PATH );
 	q = g_working_dir + strlen(g_working_dir);
 	while (q >= g_working_dir && *q != '\\') q--; *++q=0;
@@ -193,6 +205,8 @@ int main(int argc, char **argv) {
 	strncpy( g_working_name, g_working_exe, MAX_PATH );
 	q = g_working_name + strlen(g_working_name);
 	while (q >= g_working_name && *q != '.') q--; *q=0;
+	
+	// Debug Statements
 	// printf( " g_working_full: %s\n" " g_working_dir : %s\n" " g_working_exe : %s\n" " g_working_name: %s\n", g_working_full, g_working_dir, g_working_exe, g_working_name );
 	
 	printf("\n" "-- " SERV_NAME_LONG " " SERV_VER "\n" "-- " BRANDING_COPYRIGHT "\n"
@@ -303,7 +317,6 @@ unsigned int WINAPI HandleConnection(void *p) {
 	return 0;
 	}
 
-
 static void parselist(char *out, char *in) {
 	int nt=8, inquotes=0, neednull=0;
 	char c;
@@ -335,19 +348,17 @@ static void parselist(char *out, char *in) {
 	*out++=0;
 	}
 
-
 static int in_string(char *string, char *substring) {
-	int l=strlen(substring)-2;
-	if (l<0) return 1;
+	int len = strlen(substring)-2;
+	if (len<0) return 1;
 	while (*string) {
 		if ((string[0]|32) == (substring[0]|32) && (string[1]|32) == (substring[1]|32)) {
-			if (l < 1 || !strnicmp(string+2,substring+2,l)) return 1;
+			if (len < 1 || !strnicmp(string+2,substring+2,len)) return 1;
 			}
 		string++;
 		}
 	return 0;
 	}
-
 
 static int substr_search(char *bigtext, char *littletext_list) { 
 	while (*littletext_list) {
@@ -357,9 +368,6 @@ static int substr_search(char *bigtext, char *littletext_list) {
 		}
 	return 1;  
 	}
-
-
-
 
 void fixstring(char *in, char *out) {
 	while (*in) {
@@ -525,32 +533,11 @@ char *extension(char *fn) {
 	}
 
 void quit() {
-	printf("Hit any key to close...");
-	fflush(stdout);
-	getch();
+	//printf("Hit any key to close...");
+	//fflush(stdout);
+	//getch();
 	exit(1);
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 int LoadConfig(void) {
 	char log_area[16]="[conf]";
@@ -728,6 +715,7 @@ int sock_send(int sock, char *buffer,int size) {
 	}
 
 void doRecursiveAddDB(char *leading_path, char *this_path) {
+	char log_area[20] = "doadddb -->";
 	char maskstr[MAX_PATH];
 	WIN32_FIND_DATA d;
 	HANDLE h;
@@ -913,13 +901,15 @@ void http_sendredirect(int sock, char *host, char *fmt, ...) {
 	}
 
 void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, struct sockaddr_in *sin) {
+	int midHeight				= 31;
 	int isCE	 				= !!strstr(user_agent,"Windows CE");
-	int isStyle					= !strncmp(url, STYLE_URL,	strlen(STYLE_URL));
-	int isJScript				= !strncmp(url, JS_URL,		strlen(JS_URL));
+	int isStyle					= !strncmp(url, STYLE_URL,	 strlen(STYLE_URL));
+	int isJScript				= !strncmp(url, JS_URL,		 strlen(JS_URL));
+	int isControls				= !strncmp(url, CONTROL_URL, strlen(CONTROL_URL));
 	int isCoverImage			= (strstr(url,g_cover_art_filename)!=NULL);
-	int isRobots				= !strncmp(url, ROBOTS_URL,	strlen(ROBOTS_URL));
-	int admreq					= !strncmp(url, ADMIN_URL,	strlen(ADMIN_URL));
-	int is_adm					= admreq && (!g_admlp[0] || !strcmp( encodedlp, g_admlp ) || !strcmp( g_admlp, ":" ));
+	int isRobots				= !strncmp(url, ROBOTS_URL,	 strlen(ROBOTS_URL));
+	int admreq					= !strncmp(url, ADMIN_URL,	 strlen(ADMIN_URL));
+	int is_adm					= admreq && (!g_admlp[0] ||  !strcmp( encodedlp, g_admlp ) || !strcmp( g_admlp, ":" ));
 	char thisurl[128]			= "/";
 	char log_area[16]			= "[http]";
 	char mode[256]				= "";
@@ -944,7 +934,8 @@ void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, stru
 		{"s=",search},
 		{"ss=",srchstart},
 		};
-	while (p && *p) {  // if url has no ?, then this will not execute...
+	while (p && *p) {
+		// if url has no ?, then this will not execute...
 		int x;
 		for (x = 0; x < sizeof(httpgetdata)/sizeof(httpgetdata[0]) && strncmp( p+1, httpgetdata[x].key, strlen(httpgetdata[x].key) ); x++);
 		if ( x < sizeof(httpgetdata)/sizeof(httpgetdata[0]) ) {
@@ -990,7 +981,7 @@ void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, stru
 			}
 		else {
 			log_printf( "%s Error: couldn't find %s .\n", log_area, style_file );
-			sock_printf( sock, "body, font { font-family: Tahoma,Verdana,Ariel; font-size: 10 px; }\npre { font-family: lucida console; font-size: 10 px; }" );
+			sock_printf( sock, "body, font { font-family: Tahoma,Verdana,Ariel; font-size: 85%; }\npre { font-family: lucida console; font-size: 10 px; }" );
 			}
 		return;
 		}
@@ -1012,6 +1003,30 @@ void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, stru
 			}
 		else {
 			log_printf( "%s Error: couldn't find %s .\n", log_area, jscript_file );
+			sock_printf( sock, "alert('Javascript File Missing');\r\n" );
+			}
+		return;
+		}
+
+	if (isControls) {
+		FILE *control=NULL;
+		char controlbuffer[1024];
+		char control_file[MAX_PATH]="controls.gif";
+
+		wsprintf( control_file,"%s\\controls.gif", g_working_dir );
+		sock_printf( sock, "%s%sContent-type: image/gif\r\n\r\n", headHTTPOK, headCache );
+		control = fopen(control_file, "rb");
+		if (control) {
+			int readBytes;
+			while (!feof(control)) {
+				readBytes=fread(controlbuffer,sizeof(char),1024,control);
+				sock_send(sock,controlbuffer,readBytes);
+				}
+
+			fclose(control);
+			}
+		else {
+			log_printf( "%s Error: couldn't find %s .\n", log_area, control_file );
 			sock_printf( sock, "alert('Javascript File Missing');\r\n" );
 			}
 		return;
@@ -1044,23 +1059,30 @@ void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, stru
 	// check privledges...
 	// do not put above downloaded files (css & js)
 	if (!is_adm && ((encodedlp[0] && strcmp(encodedlp,g_acclp)) || admreq)) {
-		sock_printf( sock, "HTTP/1.0 401 Unauthorized\r\n" "WWW-Authenticate: basic realm=\"" BRANDING "%s\"\r\n" "content-type:text/plain\r\n\r\nAuthorization failed.\r\n", admreq?" Administrator Login":"" );
+		sock_printf( sock, 
+			"HTTP/1.0 401 Unauthorized\r\n" 
+			"WWW-Authenticate: basic realm=\"" BRANDING "%s\"\r\n" 
+			"content-type:text/plain\r\n\r\nAuthorization failed.\r\n"
+			, admreq?" Administrator Login":"" );
 		return;
 		}
 
 	// mode is a string... if we check the 0th byte and it's 0 (null) then
 	// the string is empty...   and the if will fail, but we ! it so we it passes
-	if (!mode[0]) sock_printf( sock, "%s%s%s\r\n"
+	// the only time mode should be empty is on the initial request (or if a user hits reload)
+	if (!mode[0]) {
+		sock_printf( sock, "%s%s%s\r\n"
 			"<HTML>\n"
 			"<HEAD>\n"
 			"\t<TITLE>" BRANDING " " SERV_NAME "</TITLE>\n%s"
 			"</HEAD>\n\n"
-			"<FRAMESET ROWS=\"50%%,6,50%%\" FRAMEBORDER=\"NO\" FRAMESPACING=\"0\" BORDER=\"0\">\n"
+			"<FRAMESET ROWS=\"50%%,%d,50%%\" FRAMEBORDER=\"NO\" FRAMESPACING=\"0\" BORDER=\"0\">\n"
 			"\t<FRAME SRC=\"%s?m=left#playing\" NAME=\"wwLeft\">\n"
-			"\t<FRAME SRC=\"%s?m=middle\" NAME=\"blah\" SCROLLING=\"NO\">\n"
+			"\t<FRAME SRC=\"%s?m=control\" NAME=\"wwControl\" SCROLLING=\"NO\">\n"
 			"\t<FRAME SRC=\"%s?m=right\" NAME=\"wwRight\">\n"
 			"</FRAMESET>\n\n</HTML>\n",
-			headHTTPOK, headServer, headCache, !isCE?headStyle:"", thisurl, thisurl, thisurl );
+			headHTTPOK, headServer, headCache, !isCE?headStyle:"", midHeight, thisurl, thisurl, thisurl );
+		}
 	else {
 		// mode is not null... 
 
@@ -1068,54 +1090,77 @@ void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, stru
 		HWND hwnd_wa = FindWindow("Winamp v1.x",NULL);
 		HWND hwnd_pe = FindWindow("Winamp PE",NULL);
 
+		// ckeck to see if the option is emtpy.
 		if ( opt[0] ) {
-			// if we have an option & we are the admin... do an action
-			// all actions will redirect the user to the left panel when complete
-			if (hwnd_wa) { // handler exists.  Winamp is open
+			// if we have an option do an action, all actions will redirect the user to the left panel when complete
+			if (hwnd_wa) { 
+				// handler exists.  Winamp is open
+				// atoi-Convert an ASCII string to an integer
 				int r=atoi(add);
 			
-				if		( !strcmp(opt,"rew") && is_adm)		SendMessage( hwnd_wa, WM_COMMAND, WINAMP_BUTTON1, 0);
-				else if ( !strcmp(opt,"pl") && is_adm)		SendMessage( hwnd_wa, WM_COMMAND, WINAMP_BUTTON2, 0);
-				else if ( !strcmp(opt,"pau") && is_adm)		SendMessage( hwnd_wa, WM_COMMAND, WINAMP_BUTTON3, 0);
-				else if ( !strcmp(opt,"unp") && is_adm)		SendMessage( hwnd_wa, WM_COMMAND, WINAMP_BUTTON3, 0);
-				else if ( !strcmp(opt,"st") && is_adm)		SendMessage( hwnd_wa, WM_COMMAND, WINAMP_BUTTON4, 0);
-				else if ( !strcmp(opt,"for") && is_adm)		SendMessage( hwnd_wa, WM_COMMAND, WINAMP_BUTTON5, 0);
-				else if ( !strcmp(opt,"random") && is_adm)	SendMessage( hwnd_pe, WM_COMMAND, ID_PE_S_RANDOM, 0); // got this from tag
-				else if ( !strcmp(opt,"j") && is_adm) {
-					g_playing_standby=0;
-
-					SendMessage( hwnd_wa, WM_WA_IPC, r, 121 );
-					SendMessage( hwnd_wa, WM_COMMAND, WINAMP_BUTTON2, 0 );
-					}
-				else if ( !strcmp(opt,"d") && is_adm) {
+				/* 
+					// i have no clue what the for loop checks for, but i removed cuz didn't seem to do anything.
+					// used to be with delete logic....
 					for (;;) {
 						DWORD id1, id2;
 						if (!hwnd_pe) break;
 						GetWindowThreadProcessId( hwnd_wa, &id1 );
-						GetWindowThreadProcessId( hwnd_wa, &id2);
+						GetWindowThreadProcessId( hwnd_wa, &id2 );
 						if (id1==id2) break;
 						}
+				*/
+					
+				
+				if		( !strcmp(opt,"rew") && is_adm)		SendMessage( hwnd_wa, WM_COMMAND, WINAMP_BUTTON1, 0);
+				else if ( !strcmp(opt,"pl") && is_adm)		SendMessage( hwnd_wa, WM_COMMAND, WINAMP_BUTTON2, 0); // play would take it out of standby mode
+				else if ( !strcmp(opt,"pau") && is_adm)		SendMessage( hwnd_wa, WM_COMMAND, WINAMP_BUTTON3, 0);
+				else if ( !strcmp(opt,"unp") && is_adm)		SendMessage( hwnd_wa, WM_COMMAND, WINAMP_BUTTON3, 0);
+				else if ( !strcmp(opt,"st") && is_adm)		SendMessage( hwnd_wa, WM_COMMAND, WINAMP_BUTTON4, 0);
+				else if ( !strcmp(opt,"for") && is_adm)		SendMessage( hwnd_wa, WM_COMMAND, WINAMP_BUTTON5, 0);
+				else if ( !strcmp(opt,"random") && is_adm)	SendMessage( hwnd_pe, WM_COMMAND, ID_PE_S_RANDOM, 0); // got this undocumented feature from tag
+				else if ( !strcmp(opt,"d") && is_adm) {
 					if (hwnd_pe) SendMessage( hwnd_pe, WM_USER, 104, r);
 					}
-				else { // add track
+				else if ( !strcmp(opt,"uppl") && is_adm) {
+					log_printf( "%s %s\n", "[list]", "Updating Playlist" );	
+					}
+				else if ( !strcmp(opt,"rsDB") && is_adm) {
+					int x;
+					log_printf( "%s %s\n", "[rsDB]", "Rescanning files and creating new database..." );
+					
+					for ( x = 0; x < database_used; x++ ) {
+						wsprintf( database[x].file, "" );
+						wsprintf( database[x].leading_path, "" );
+						}
+					database_used=0;
+					makeDB();
+					}
+				else if ( !strcmp(opt,"j") && is_adm) {
+					// the user jumped to a file, so we're no longer in standby mode
+					g_playing_standby=0;
+					SendMessage( hwnd_wa, WM_WA_IPC, r, 121 );
+					SendMessage( hwnd_wa, WM_COMMAND, WINAMP_BUTTON2, 0 );
+					}
+				else { 
+					// add track
 
-// this is the ghetto (but less buggy filler track checker...
-/*					char this_title[2048],*p;
+					// this is the ghetto (but less buggy filler track checker...
+					/*
+					char this_title[2048], *p;
 
-					GetWindowText(hwnd_wa,this_title,sizeof(this_title));
-					p = this_title+strlen(this_title)-8;
-					while (p >= this_title)
-					{
+					GetWindowText( hwnd_wa, this_title, sizeof(this_title) );
+					p = this_title + strlen(this_title)-8;
+					while (p >= this_title) {
 						if (!strnicmp(p,"- Winamp",8)) break;
 						p--;
-					}
+				    	}
 
 					if (p >= this_title) p--;
 					while (p >= this_title && *p == ' ') p--;
 					*++p=0;
 
 					playingStandby=(strstr(this_title,g_filler_stream_title)!=NULL);
-*/
+					*/
 					if ( 0 <= r && r < database_used ) {
 						char s[MAX_PATH];
 						COPYDATASTRUCT cds;
@@ -1140,23 +1185,23 @@ void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, stru
 						if ( !SendMessage( hwnd_wa, WM_WA_IPC, 0, IPC_ISPLAYING ) ) SendMessage( hwnd_wa, WM_WA_IPC, 0, IPC_STARTPLAY );
 						}
 
-						if(g_playing_standby){ // if it's playing the standby track
-							// just skip to new track
-							SendMessage(hwnd_wa,WM_COMMAND,40048,40048);
-						}
-
+						// if it's playing the standby track
+						// just skip to new track
+						if (g_playing_standby) SendMessage( hwnd_wa, WM_COMMAND, WINAMP_BUTTON5, 0);
 						g_playing_standby=0;
 					}
 				}
-			else if ( !strcmp(opt,"swa") && is_adm ) {
-				// no handler exists.  Winamp is not open.  if the option is to start winamp, 
-				// then we attempt to start winamp.
-				char s[MAX_PATH];
-				STARTUPINFO si={sizeof(si),};
-				PROCESS_INFORMATION pi;
-				wsprintf(s,"%s\\winamp.exe",g_winamp_dir);
-				log_printf("[admin] Trying to execute %s\n",s);
-				CreateProcess( NULL, s, NULL, NULL, 0, 0, NULL, g_winamp_dir, &si, &pi );
+			else {
+				if ( !strcmp(opt,"swa") && is_adm ) {
+					// no handler exists.  Winamp is not open.  if the option is to start winamp, 
+					// then we attempt to start winamp.
+					char s[MAX_PATH];
+					STARTUPINFO si={sizeof(si),};
+					PROCESS_INFORMATION pi;
+					wsprintf(s,"%s\\winamp.exe /play",g_winamp_dir);
+					log_printf("[admin] Trying to execute %s\n",s);
+					CreateProcess( NULL, s, NULL, NULL, 0, 0, NULL, g_winamp_dir, &si, &pi );
+					}
 				}
 			// send http redirect after our action
 			http_sendredirect( sock, gethost(sin), "%s?m=%s#playing", thisurl, mode );
@@ -1178,8 +1223,6 @@ void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, stru
 			if (!strcmp(mode,"left")) {
 				// find the winamp playlist....
 				if (hwnd_wa) {
-					int ps=SendMessage(hwnd_wa,WM_WA_IPC,0,IPC_ISPLAYING);
-
 					char fn[MAX_PATH];
 					FILE *fp;
 					EnterCriticalSection(&playlist_mutex);
@@ -1187,16 +1230,17 @@ void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, stru
 					fp = fopen( fn, "rt" );
 					if (fp) {
 						int x=0;
-						int why=1;
 						int cursong = SendMessage( hwnd_wa, WM_WA_IPC, 0, 120 );
 						int numtracks = SendMessage( hwnd_wa, WM_WA_IPC, 0, 124 );
 						int listlen = numtracks - cursong;
+						int ps=SendMessage(hwnd_wa,WM_WA_IPC,0,IPC_ISPLAYING);
 						char tempID3[MAX_PATH];
-						sock_printf(sock,"<pre>");
-
-						if(listlen==1 && ps==0){ // if one track left, but stopped (i.e., after last song), either
-							if(g_eop_action==eop_mode_random){ // play a random track
-								int r = database_used *  (int)myrand() / (double)(RAND_MAX+1);
+						
+						if (listlen==1 && ps==0) { 
+							// if one track left, but stopped (i.e., after last song), either
+							// play a random track
+							if (g_eop_action==eop_mode_random) { 
+								int r = (int)(database_used * (int)myrand() / (double)(RAND_MAX+1));
 								char s[MAX_PATH];
 								COPYDATASTRUCT cds;
 								strcpy( s, database[r].leading_path );
@@ -1205,26 +1249,30 @@ void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, stru
 								cds.dwData = IPC_PLAYFILE;
 								cds.lpData = (void *) s;
 								cds.cbData = strlen((char *) cds.lpData)+1;
-								SendMessage(hwnd_wa,WM_WA_IPC,0,101); // clear playlist
-								SendMessage(hwnd_wa,WM_COPYDATA,(WPARAM)NULL,(LPARAM)&cds ); // add new track
+								SendMessage( hwnd_wa, WM_WA_IPC, 0, 101 ); // clear playlist
+								SendMessage( hwnd_wa, WM_COPYDATA, (WPARAM)NULL, (LPARAM)&cds ); // add new track
 
 								// skip to the new track and play
-								SendMessage(hwnd_wa,WM_WA_IPC,1,121);
-								SendMessage(hwnd_wa,WM_WA_IPC,numtracks,102);
+								SendMessage( hwnd_wa, WM_WA_IPC, 1, 121 );
+								SendMessage( hwnd_wa, WM_WA_IPC, numtracks, 102 );
 	
 								g_playing_standby=1;
+								}
+							else {
+								// play filler stream
+								if(g_eop_action==eop_mode_stream){
+									char prog[MAX_PATH];
+									wsprintf(prog,"%s\\winamp.exe",g_winamp_dir);
+									_spawnl(_P_NOWAIT,prog,"booger.mp3",g_filler_stream_url,NULL);
+									g_playing_standby=1;
+									}
+								}
 							}
-							else if(g_eop_action==eop_mode_stream){ // play filler stream
-								char prog[MAX_PATH];
-								wsprintf(prog,"%s\\winamp.exe",g_winamp_dir);
-								_spawnl(_P_NOWAIT,prog,prog,g_filler_stream_url,NULL);
-								g_playing_standby=1;
-							}
-						}
 
+						sock_printf(sock,"<pre>");
 						while (1) {
-							char tmp[1024]="balh";
-							char *p,*tp, *ffile;
+							char tmp[1024]="blah";
+							char *p, *tp, *ffile;
 							fgets(fn,sizeof(fn),fp);
 							if (feof(fp)) break;
 							p=fn;
@@ -1238,7 +1286,6 @@ void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, stru
 									}
 								continue;
 								}
-							why++;
 							if ( tempID3[0] ) {
 								strcpy(tmp,tempID3);
 								tempID3[0]=0;
@@ -1256,55 +1303,36 @@ void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, stru
 								}
 								
 							if (x == cursong) {
-								if (!isCE) sock_printf( sock, "</pre>\n" "<p><div class=\"control\">");
-								sock_printf( sock, "<a name=\"playing\">\n");
-								if (is_adm) {
-									switch ( SendMessage( hwnd_wa, WM_WA_IPC,0,IPC_ISPLAYING) ) {
-										case 0: sock_printf(sock,"%stopped", isCE?"S":"Winamp is s"); 		break;
-										case 1: sock_printf(sock,"%slaying", isCE?"P":"Winamp is p");		break;
-										case 3: sock_printf(sock,"%saused",   isCE?"P":"Winamp is p");		break;
-										default: break;
-										}
-									sock_printf( sock, " : <B>%d file%s</B> in queue<br>\n"
-										"[ <a href=\"%s?m=left&o=rew\" class=\"%s\">%s</a> ]"
-										"[ <a href=\"%s?m=left&o=pl\"  class=\"%s\">%s</a> ]"
-										"[ <a href=\"%s?m=left&o=pau\" class=\"%s\">%s</a> ]"
-										"[ <a href=\"%s?m=left&o=st\"  class=\"%s\">%s</a> ]"
-										"[ <a href=\"%s?m=left&o=for\" class=\"%s\">%s</a> ]",
-										listlen, listlen==1?"":"s", 
-										thisurl, symbols, useWebDings ? "&#55;" : "rew",
-										thisurl, symbols, useWebDings ? "&#52;" : "play",
-										thisurl, symbols, useWebDings ? "&#59;" : "pause",
-										thisurl, symbols, useWebDings ? "&#60;" : "stop",
-										thisurl, symbols, useWebDings ? "&#56;" : "for",
-										thisurl);
-									sock_printf( sock, "[ <a href=\"%s?m=left&o=random\">Rand%s</a> ]", thisurl, isCE?"":"omize List");
+								sock_printf( sock, "<a name=\"playing\">");
+								if (!isCE) {
+									sock_printf( sock, "<div class=\"current\">");
+									sock_printf( sock, "now playing: %d. %s<b class=\"CurrentSong\">%s</b>\n", x+1, is_adm?"[&raquo;<b>&raquo;</b>&raquo;<b>&raquo;</b>] ":"", tmp );
+									if(g_show_cover_art && !g_playing_standby) showCoverArt(sock,fn,database[0].leading_path);
 									}
-								if ( g_sc_server[0] ) sock_printf( sock, "[ <a target=\"blank\" href=\"%s\">Shoutcast Server</a> ]", g_sc_server );
-								if (!isCE){
-									sock_printf( sock, "</div>\n<pre>now playing: %s<b class=\"CurrentSong\">%s</b>\n", is_adm?"[&raquo;<b>&raquo;</b>&raquo;<b>&raquo;</b>] ":"", tmp );
-
-									if(g_show_cover_art && !g_playing_standby){
-										showCoverArt(sock,fn,database[0].leading_path);
-									}
-
-								}
 								else sock_printf(sock,"%s\n",tmp);
-							}
-							else 
+								switch ( SendMessage( hwnd_wa, WM_WA_IPC,0,IPC_ISPLAYING) ) {
+									case 0: sock_printf(sock,"%stopped", isCE?"S":"Winamp is s"); break;
+									case 1: sock_printf(sock,"%slaying", isCE?"P":"Winamp is p"); break;
+									case 3: sock_printf(sock,"%saused",  isCE?"P":"Winamp is p"); break;
+									default: break;
+									}
+								sock_printf( sock, ", <b>%d of %d file%s</b> left in queue\n", listlen, numtracks, numtracks==1?"":"s");
+								if (!isCE) sock_printf( sock, "</div>");
+								}
+							else {
 								if (!isCE || (isCE && (x > cursong) && (x < cursong + 10))) {
-									sock_printf( sock, "% 7d. ", x+1 );
+									sock_printf( sock, "% 6d. ", x+1 );
 									if (is_adm) {
 										sock_printf(sock,"[<a href=\"%s?m=left&o=j&a=%d\">j</a>]",thisurl,x);
 										sock_printf(sock,"[<a href=\"%s?m=left&o=d&a=%d\">d</a>] ",thisurl,x);
 										}
 									//sock_printf( sock, "%s (%s)\n", tmp, ffile );
 									sock_printf( sock, "%s\n", tmp );
-									//sock_printf( sock, "<font onMouseover=\"s('s%d')\" onMouseout=\"h('s%d')\">%s</font><span id=\"s%d\" class=\"sI\"><b>Filename: </b>%s</span>\n", x, x, tmp, x, ffile);
+									}
 								}
 							x++;
 							}
-						sock_printf(sock,"</PRE>");
+						sock_printf(sock,"</pre>");
 						fclose(fp);          
 						LeaveCriticalSection(&playlist_mutex);
 						} 
@@ -1315,32 +1343,80 @@ void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, stru
 					if (is_adm) sock_printf(sock,"[ <a href=\"%s?m=left&o=swa\">%s</a> ]\n\n",thisurl, !isCE?"Try starting Winamp":"start");
 					}
 				}
-			else if (!strcmp(mode,"middle")) {
-
-					sock_printf(sock,
-						"<table width=\"100%%\" height=20 cellspacing=0 cellpadding=0 border=0 class=\"resizeControl\">"
-						"<tr>"
-						"<td class=\"WWWinamp_left\" height=\"10\"></td>"
-						"<td rowspan=3>&nbsp;&nbsp;&nbsp;"
-						"<a class=\"%s_resize\" onClick=\"parent.document.body.rows='45,6,*'\" 		href=\"#\">%s</a>"
-						"<a class=\"%s_resize\" onClick=\"parent.document.body.rows='50%%,6,50%%'\"	href=\"#\">%s</a>"
-						"<a class=\"%s_resize\" onClick=\"parent.document.body.rows='*,6,45'\" 		href=\"#\">%s</a>"
-						"&nbsp;&nbsp;&nbsp;</td>\n"
-						"<td class=\"WWWinamp_left\"></td>"
-						"</tr>"
-						"<tr>"
-						"<td width=\"50%%\" height=\"2\"></td>\n"
-						"<td width=\"50%%\" height=\"2\"></td>\n"
-						"</tr>"
-						"<tr>"
-						"<td class=\"WWWinamp_right\" height=\"8\"></td>"
-						"<td class=\"WWWinamp_right\"></td>"
-						"</tr>"
-						"</table>",
-						symbols, useWebDings ? "&#53;&#53;&#53;" : "^^^",
-						symbols, useWebDings ? "&#239;&#240;" : "--",
-						symbols, useWebDings ? "&#54;&#54;&#54;" : "VVV"
+			else if (!strcmp(mode,"control")) {
+				/*
+				if (is_adm) {
+					sock_printf( sock, 
+						"[ <a href=\"%s?m=left&o=rew\" class=\"%s\">%s</a> ]"
+						"[ <a href=\"%s?m=left&o=pl\"  class=\"%s\">%s</a> ]"
+						"[ <a href=\"%s?m=left&o=pau\" class=\"%s\">%s</a> ]"
+						"[ <a href=\"%s?m=left&o=st\"  class=\"%s\">%s</a> ]"
+						"[ <a href=\"%s?m=left&o=for\" class=\"%s\">%s</a> ]",
+						thisurl, symbols, useWebDings ? "&#55;" : "rew",
+						thisurl, symbols, useWebDings ? "&#52;" : "play",
+						thisurl, symbols, useWebDings ? "&#59;" : "pause",
+						thisurl, symbols, useWebDings ? "&#60;" : "stop",
+						thisurl, symbols, useWebDings ? "&#56;" : "for",
 						);
+					}
+
+				if (is_adm) {
+					sock_printf( sock, 
+						"<img src=\"%s\" width=165 height=30>"
+						"<a target=\"wwLeft\" onclick=\"javascript:window.location.reload()\" href=\"%s?m=left&o=rew\">%s</a> | \n"
+						"<a target=\"wwLeft\" onclick=\"javascript:window.location.reload()\" href=\"%s?m=left&o=pl\">%s</a>  | \n"
+						"<a target=\"wwLeft\" onclick=\"javascript:window.location.reload()\" href=\"%s?m=left&o=pau\">%s</a> | \n"
+						"<a target=\"wwLeft\" onclick=\"javascript:window.location.reload()\" href=\"%s?m=left&o=st\">%s</a>  | \n"
+						"<a target=\"wwLeft\" onclick=\"javascript:window.location.reload()\" href=\"%s?m=left&o=for\">%s</a> | \n"
+						"<a target=\"wwLeft\" onclick=\"javascript:window.location.reload()\" href=\"%s?m=left&o=random\">Rand%s</a> | \n"
+						,
+						"/controls.gif",
+						thisurl, "rew",
+						thisurl, "play",
+						thisurl, "pause",
+						thisurl, "stop",
+						thisurl, "forward",
+						thisurl, isCE?"":"omize List"
+						);
+					}
+				sock_printf( sock, 
+					"<a onClick=\"parent.document.body.rows='45,%d,*'\" href=\"#\">Max Search</a> | \n"
+					"<a onClick=\"parent.document.body.rows='50%%,%d,50%%'\" href=\"#\">Default</a> | \n"
+					"<a onClick=\"parent.document.body.rows='*,%d,45'\" href=\"#\">Max Playlist</a> | \n"
+					,
+					midHeight, midHeight, midHeight
+					);
+				*/
+				sock_printf( sock, "<table class=\"resizeControl\">\n<tr><td>\n" );
+				if ( is_adm ) {
+					sock_printf( sock, 
+						"<MAP NAME=\"controls_Map\">\n"
+						"<AREA SHAPE=\"rect\" COORDS=\"6,6,23,23\"     target=\"wwLeft\" onclick=\"javascript:window.location.reload()\" href=\"%s?m=left&o=rew\">\n"
+						"<AREA SHAPE=\"rect\" COORDS=\"26,6,43,23\"    target=\"wwLeft\" onclick=\"javascript:window.location.reload()\" href=\"%s?m=left&o=pl\">\n"
+						"<AREA SHAPE=\"rect\" COORDS=\"46,6,63,23\"    target=\"wwLeft\" onclick=\"javascript:window.location.reload()\" href=\"%s?m=left&o=pau\">\n"
+						"<AREA SHAPE=\"rect\" COORDS=\"66,6,83,23\"    target=\"wwLeft\" onclick=\"javascript:window.location.reload()\" href=\"%s?m=left&o=st\">\n"
+						"<AREA SHAPE=\"rect\" COORDS=\"86,6,103,23\"   target=\"wwLeft\" onclick=\"javascript:window.location.reload()\" href=\"%s?m=left&o=for\">\n"
+						"<AREA SHAPE=\"rect\" COORDS=\"128,1,156,9\"   onClick=\"parent.document.body.rows='45,%d,*'\" href=\"#\">\n"
+						"<AREA SHAPE=\"rect\" COORDS=\"128,11,156,18\" onClick=\"parent.document.body.rows='50%%,%d,50%%'\" href=\"#\">\n"
+						"<AREA SHAPE=\"rect\" COORDS=\"128,20,156,28\" onClick=\"parent.document.body.rows='*,%d,45'\" href=\"#\">\n"
+						"</MAP>"
+						"<img src=\"%s\" width=165 height=30 border=0 usemap=\"#controls_Map\">"
+						"</td><td>"
+						,
+						thisurl, thisurl, thisurl, thisurl, thisurl, 
+						midHeight, midHeight, midHeight,
+						CONTROL_URL
+						);
+					}
+				
+				if ( g_sc_server[0] ) sock_printf( sock, " <a target=\"blank\" href=\"%slisten.pls\">Listen</a> | \n", g_sc_server );
+				if ( g_sc_server[0] ) sock_printf( sock, " <a target=\"blank\" href=\"%s\">Shoutcast Server</a> | \n", g_sc_server );
+				//sock_printf( sock, "<a target=\"wwLeft\" onclick=\"javascript:window.location.reload()\" href=\"%s?m=left#playing\">current</a> | \n", thisurl );
+				sock_printf( sock, "<a target=\"wwLeft\" onclick=\"javascript:window.location.reload()\" href=\"%s?m=left&o=uppl\">update</a> | \n", thisurl );
+				sock_printf( sock, "<a target=\"wwLeft\" onclick=\"javascript:window.location.reload()\" href=\"%s?m=left&o=random\">Rand%s</a> | \n", thisurl, isCE?"":"omize" );
+				if ( is_adm ) sock_printf( sock, "<a target=\"wwLeft\" onclick=\"javascript:window.location.reload()\" href=\"%s?m=left&o=rsDB\">update library</a> | \n", thisurl );
+				if ( g_playing_standby ) sock_printf( sock, "Standby Mode | " );
+				sock_printf( sock, "</td></tr>\n</table>\n" );
 				}
 			
 			else if (!strcmp(mode,"right")) {
@@ -1371,9 +1447,7 @@ void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, stru
 							"<td><input type=submit value=\"Show All\"></td>\n"
 							"</form>\n",
 							thisurl);
-					sock_printf(sock,"<td>"
-						"<a target=\"wwLeft\" href=\"%s?m=left#playing\">find controls</a></td>\n"
-						"</table><BR>\n", thisurl);
+					sock_printf(sock,"</table><BR>\n");
 					}
 				if ( showAll || strlen(searchstring)>1 ) {
 					char last_leading_path[1024], *ssout=(char*)malloc(strlen(searchstring)*2+8);
@@ -1418,7 +1492,7 @@ void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, stru
 								wsprintf(fullFilename,"%s%s",database[x].leading_path,database[x].file);
 								
 								sock_printf(sock,"<p>\n");
-								if(showCoverArt) showCoverArt(sock,fullFilename,database[0].leading_path);
+								if(g_show_cover_art) showCoverArt( sock, fullFilename, database[0].leading_path );
 								sock_printf(sock,"<p><b>%s</b>\n",leading_path);
 								}
 							}
@@ -1463,11 +1537,11 @@ void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, stru
 					free(ssout);
 					}
 				if (!isCE) sock_printf( sock, "\n"
-					"<P>" SERV_NAME_LONG "<br>\n"
+					"<P><div class=\"footer\">" SERV_NAME_LONG "<br>\n"
 					BRANDING " " SERV_NAME " " SERV_VER "<BR>\n"
 					"<a href=\"" BRANDING_URL "\" target=\"_blank\">" BRANDING_URL "</a><br>\n" 
 					BRANDING_COPYRIGHT "<br>\n"
-					COPYRIGHT "\n");
+					COPYRIGHT "</div>\n");
 				}
 			sock_printf( sock, "\n</body>\n</html>\n");
 			}

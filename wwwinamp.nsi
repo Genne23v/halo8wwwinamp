@@ -1,5 +1,5 @@
 !define APP_VER_MAJOR 2
-!define APP_VER_MINOR 7.7
+!define APP_VER_MINOR 7.8
 !define APP_PUBLISHER "Halo 8 Productions"
 !define APP_NAME "WWWinamp"
 !define APP_FOLDER "wwwinamp"
@@ -27,7 +27,7 @@ InstallDir "$PROGRAMFILES\${APP_PUBLISHER}\${APP_FOLDER}"
 InstallDirRegKey HKLM "SOFTWARE\${APP_PUBLISHER}\${APP_FOLDER}" "Install_Dir"
 
 ; Making mY Shit pretty!
-Icon "halo8.ico"
+Icon "${APP_PUBLISHER}.ico"
 ShowInstDetails show
 ShowUninstDetails show
 InstProgressFlags colored
@@ -45,7 +45,7 @@ Section "${APP_NAME} (required)"
 	; F I L E S  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	; oname = file name in release
 	; File /oname=wwwinamp.css wwwinamp_release.css
-	File wwwinamp.exe
+	File Release\wwwinamp.exe
 	File wwwinamp.css
 	File wwwinamp.js
 	File readme_nullsoft.txt
@@ -58,7 +58,7 @@ Section "${APP_NAME} (required)"
 
 	IfFileExists "$INSTDIR\wwwinamp.ini" 0 WriteAsNewName
 		File /oname=wwwinamp_${APP_VER_MAJOR}.${APP_VER_MINOR}.ini wwwinamp.ini
-		MessageBox MB_OK "Your ${APP_NAME} configuration file has been not been modified.  Please review the latest confiutation file for new options (if any)."
+		MessageBox MB_OK "Please note: Your customized ${APP_NAME} configuration file has not been modified.  Please review the configuration file installed with the lastest version of ${APP_NAME} (wwwinamp_${APP_VER_MAJOR}.${APP_VER_MINOR}.ini) for any new options or changes and apply these changes to your existing configuration.  Thank you."
 		goto WriteAnyway
 	WriteAsNewName:
 		File wwwinamp.ini
@@ -94,6 +94,31 @@ Section "Start Menu Shortcuts"
 	SetOutPath $INSTDIR
 SectionEnd
 
+
+; The stuff to install for source code
+Section "${APP_NAME} Source Code"
+	; Set output path to the installation directory.
+	SetOutPath $INSTDIR/source
+
+	; F I L E S  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	; oname = file name in release
+	; File /oname=wwwinamp.css wwwinamp_release.css
+	File "${APP_PUBLISHER}.url"
+	File "${APP_PUBLISHER}.ico"
+	File *.psd
+	File *.gif
+	File read*.txt
+	File *.h
+	File *.c
+	File wwwinamp.css
+	File wwwinamp.js
+	File wwwinamp.dsp
+	File wwwinamp.dsw
+	File wwwinamp.ini
+	File wwwinamp.nsi
+
+SectionEnd
+
 Section "Uninstall"
 	;; Custom Actions
 
@@ -106,6 +131,8 @@ Section "Uninstall"
 	DeleteRegKey HKLM "SOFTWARE\${APP_PUBLISHER}\${APP_FOLDER}"
 
 	; remove shortcuts.
+	Delete "$SMPROGRAMS\${APP_PUBLISHER}\${APP_LONGNAME}\Source\*.*"
+	RMDir "$SMPROGRAMS\${APP_PUBLISHER}\${APP_LONGNAME}\Source"
 	Delete "$SMPROGRAMS\${APP_PUBLISHER}\${APP_LONGNAME}\*.*"
 	RMDir "$SMPROGRAMS\${APP_PUBLISHER}\${APP_LONGNAME}"
 	IfFileExists "$SMPROGRAMS\${APP_PUBLISHER}" 0 NoDeletePublisher

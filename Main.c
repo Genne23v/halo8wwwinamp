@@ -73,6 +73,11 @@
 	2.7.6  - 2003/08/19 (rar) changed code to print out server address upon successful start up
 						(rar) made modifications to log_printf error messages in several spots, as well as cleaned up some verbiage, more work to be done
 	2.7.7  - 2003/12/07 (rar) made changes that caused access violations while loading files with long names. change wsprintf to strncpy. Also changed some test to make it less confusing to figure out how to use configuration files.
+	2.7.8  - 2003/12/30 (rar) added auto select to  input field for search box
+						(rar) got sidetracked and re-formated output of startup messages
+						(rar) added user:pass to Interfaces output for easier cutting & pasting
+						(rar) added search google button
+
   
 */
 
@@ -175,28 +180,35 @@ unsigned int WINAPI HandleConnection(void *p);
 */
 
 // configured/validated in LoadConfig()
-char	g_acclp[512]					= "";
-char	g_admlp[512]					= "";
+short	g_dst_port						= 80;
+
+int		g_show_cover_art				= 0;
 int		g_perform_lookups				= 0;
 int		g_show_requests					= 0;
-int		g_show_cover_art				= 0;
-short	g_dst_port						= 80;
 int		g_left_refresh					= 60;				// left panel refresh rate
 int		g_library_page_size				= 500;
 int		g_cover_art_size_db				= 100;
 int		g_cover_art_size_playing		= 150;
-char	g_cover_art_root_dir[MAX_PATH]	= "";
-enum	eop_modes{ eop_mode_silence=0, eop_mode_random=1, eop_mode_stream=2 } g_eop_action	= eop_mode_silence;
-char	g_winamp_dir[MAX_PATH]			= "C:\\Program Files\\Winamp";
-char	g_log_file[MAX_PATH]			= "";
-char	g_db_path[MAX_PATH]				= "";
-char	g_db_filelist[MAX_PATH]			= "";
+
+char	g_acclp[512]					= ""; // encoded access password
+char	g_admlp[512]					= ""; // encoded admin password
+char	g_acclp_c[512]					= ""; // unencoded access password
+char	g_admlp_c[512]					= ""; // unencoded admin password
+char	g_dst_ip[128]					= "";
 char	g_ext_types[128]				= "";
 char	g_sc_server[1024]				= ""; // shoucast server info, null/empty for none
 char	g_winamp_class_name[128]		= "Winamp v1.x";
+
+char	g_db_path[MAX_PATH]				= "";
+char	g_log_file[MAX_PATH]			= "";
+char	g_winamp_dir[MAX_PATH]			= "C:\\Program Files\\Winamp";
+char	g_db_filelist[MAX_PATH]			= "";
 char	g_filler_stream_url[MAX_PATH]	= "";
-char	g_dst_ip[128]					= "";
 char	g_html_include_file[MAX_PATH]	= "include.html";
+char	g_cover_art_root_dir[MAX_PATH]	= "";
+
+enum	eop_modes{ eop_mode_silence=0, eop_mode_random=1, eop_mode_stream=2 } g_eop_action	= eop_mode_silence;
+
 
 // rest of the global config
 CRITICAL_SECTION log_mutex;
@@ -286,18 +298,24 @@ int main(int argc, char **argv) {
 	
 	if ( LoadConfig() ) quit();
 
-	if (init_socketlib(1) < 0) quit();
-
-	MainSocket = OpenSocket(g_dst_port,32);
-	if (MainSocket < 0) {
-		log_printf("%s ERROR: problem opening socket.\n", log_area);
+	// Initialzing port
+	log_printf( "%s Initializing Port: ", log_area, g_dst_port );
+	if ( init_socketlib(1) < 0 ) {
+		printf( "Failure.\n" );
 		quit();
 		}
-	else log_printf("%s port initialized, opening socket.\n", log_area);
+	else printf( "Successful.\n" );
+
+	// Opening Socket
+	log_printf( "%s Opening Socket: ", log_area );
+	MainSocket = OpenSocket(g_dst_port,32);
+	if (MainSocket < 0) {
+		printf( "Failure.\n" );
+		quit();
+		}
+	else printf( "Successful.\n" );
 
 	makeDB();
-
-	log_printf("%s Server now available for users.\n", log_area, g_dst_port);
 
 	iError=gethostname(szHostName,sizeof(szHostName));
 	// Tell the user that we could not get the host name
@@ -312,9 +330,11 @@ int main(int argc, char **argv) {
 	else {
 		// debug log_printf("Host name : %s\n", hHostent->h_name);
 		// debug log_printf("IP Address : %s\n", inet_ntoa(*((struct in_addr*)hHostent->h_addr)));
-		log_printf("%s User Interface is located at http://%s:%d\n", log_area, inet_ntoa(*((struct in_addr*)hHostent->h_addr)), g_dst_port);
-		log_printf("%s Admin Interface is located at http://%s:%d%s\n", log_area, inet_ntoa(*((struct in_addr*)hHostent->h_addr)), g_dst_port, ADMIN_URL);
+		log_printf( "%s User Interface:  http://%s@%s:%d\n", log_area, g_acclp_c, inet_ntoa(*((struct in_addr*)hHostent->h_addr)), g_dst_port );
+		log_printf( "%s Admin Interface: http://%s@%s:%d%s\n", log_area, g_admlp_c, inet_ntoa(*((struct in_addr*)hHostent->h_addr)), g_dst_port, ADMIN_URL );
 		}
+
+	log_printf("%s %s Start-up: Successful. System available for users.\n\n", log_area, SERV_NAME, g_dst_port);
 
 	mysrand( (unsigned)time( NULL ) );
 
@@ -328,6 +348,7 @@ int main(int argc, char **argv) {
 		launchthread( (void*)HandleConnection, (void *)c );
 		}
 	CloseSocket(MainSocket);
+	log_printf( "%s Shutting down socket.", log_area );
 	init_socketlib(0);
 	return 0;
 	}
@@ -365,7 +386,7 @@ int LoadConfig(void) {
 		};
 	
 	conf = fopen( g_config_file, "rb" );
-	log_printf( "%s loading config from: %s.\n", log_area, g_config_file );
+	log_printf( "%s Loading Configuration: %s.\n", log_area, g_config_file );
 	if (!conf) {
 		printf( "%s ERROR: couldn't find config file.\n", log_area );
 		return -1;
@@ -405,8 +426,8 @@ int LoadConfig(void) {
       
 		switch (i) {
 			// Login & Password Strings
-			case 0:		encodeLP(g_acclp, tok);							break; // "AccessLoginPassword"
-			case 1:		encodeLP(g_admlp, tok);							break; // "AdminLoginPassword"
+			case 0:		encodeLP(g_acclp, tok);	strcpy(g_acclp_c, tok);	break; // "AccessLoginPassword"
+			case 1:		encodeLP(g_admlp, tok);	strcpy(g_admlp_c, tok);	break; // "AdminLoginPassword"
 
 			// boolean values
 			case 2:		g_perform_lookups				= !!atoi(tok);	break; // "NameLookups"
@@ -492,7 +513,7 @@ int LoadConfig(void) {
 		fclose(includeFile);
 	}
 	
-	log_printf( "%s Successfully loaded config file.\n", log_area );
+	log_printf( "%s Successfully Loaded Configuration.\n", log_area );
 	return 0;
 	}
 
@@ -739,18 +760,12 @@ void CloseSocket(int sock) {
 	}
 
 int init_socketlib(int which) {
-	char log_area[16]="[sock]";
 	WSADATA wsaData;
 	if (which) {
-		if (WSAStartup( MAKEWORD(1, 1), &wsaData) ) {
-			log_printf( "%s ERROR: initializing winsock on port %d.\n", log_area, g_dst_port );
-			return -1;
-			}
-		else log_printf( "%s Attempting to initialize port %d.\n", log_area, g_dst_port );
+		if ( WSAStartup( MAKEWORD(1, 1), &wsaData ) ) return -1;
 		}
 	else {
 		WSACleanup();
-		log_printf( "%s Shutting down socket.", log_area );
 		}
 	return 0;
 	}
@@ -966,7 +981,7 @@ void makeDB() {
 	char path_buf[1025] = "";
 	char *p;
 	strcpy( path_buf, g_db_path );
-	log_printf( "%s building media library...\n", log_area );
+	log_printf( "%s Building Media Library:\n", log_area );
 	path_buf[strlen(path_buf)+1]=0;
 	p=path_buf;
 	while ( p && *p ) { // replace all ;'s with \0 to simulate null termination. me thinks
@@ -977,7 +992,7 @@ void makeDB() {
 	while (*p) {
 		g_count=0;
 		doRecursiveAddDB(p,"");
-		log_printf( "%s %d item%s under %s%s\n", log_area, g_count, (g_count==1)?"":"s", p, spacer );
+		log_printf( "%s -%6d file%s in %s%s\n", log_area, g_count, (g_count==1)?"":"s", p, spacer );
 		p+=strlen(p)+1;
 		}
 	p=g_db_filelist;
@@ -1020,9 +1035,10 @@ void makeDB() {
 			}
 		p+=strlen(p)+1;
 		}
-	log_printf( "%s sorting database...\n", log_area );
+	log_printf( "%s Sorting Database: ", log_area );
 	qsort( database, database_used, sizeof(dbType), _compare );
-	log_printf( "%s Media Library now contains %d item%s\n", log_area, database_used, (database_used==1)?"":"s" );
+	printf( " Successful.\n" );
+	log_printf( "%s Media Library Contains %d File%s.\n", log_area, database_used, (database_used==1)?"":"s" );
 	}
 
 void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, struct sockaddr_in *sin) {
@@ -1059,7 +1075,7 @@ void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, stru
 		{"o=",opt},
 		{"a=",add},
 		{"ca=",coverart},
-		{"s=",search},
+		{"q=",search},
 		{"ss=",srchstart},
 		};
 
@@ -1531,15 +1547,15 @@ void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, stru
 							}
 						sock_printf(sock,"<form method=\"get\" action=\"%s\">\n"
 							"<input type=hidden name=\"m\" value=\"right\">\n"
-							"<input type=hidden name=\"s\" value=\"*\">\n"
+							"<input type=hidden name=\"q\" value=\"*\">\n"
 							"<td><input type=submit value=\"Show All\"></td>\n"
 							"</form>\n"
 							,thisurl);
 						sock_printf( sock,
-							"<form method=\"get\" action=\"%s\">\n"
+							"<form method=\"get\" action=\"%s\" name=\"search\">\n"
 							"<input type=hidden name=\"m\" value=\"right\">\n"
-							"<td><input type=text name=\"s\" size=\"30\" maxlen=\"64\" value=\"%s\"></td>\n"
-							"<td><input type=submit value=\"Search\"></td>\n</form>\n"
+							"<td><input type=text name=\"q\" size=\"30\" maxlen=\"64\" value=\"%s\" onfocus=\"this.select()\"></td>\n"
+							"<td><input type=submit value=\"Search\"></td>\n<td><input type=button value=\"Google\" onclick=\"if ( search.q.value ) window.open( 'http://www.google.com/search?q=' + search.q.value );\"></td>\n</form>\n"
 							, thisurl, searchstring);
 						sock_printf(sock,"</tr></table><BR>\n");
 

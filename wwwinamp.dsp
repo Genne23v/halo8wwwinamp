@@ -54,7 +54,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=move $(OutDir)\halo8.url "$(OutDir)\Halo 8 Productions.url"
+PostBuild_Cmds=echo on	copy $(OutDir)\halo8.url "$(OutDir)\Halo 8 Productions.url"
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "wwwinamp - Win32 Debug"
@@ -83,7 +83,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
-PostBuild_Cmds=echo move $(OutDir)\halo8.url "$(OutDir)\Halo 8 Productions.url" 	move $(OutDir)\halo8.url "$(OutDir)\Halo 8 Productions.url"	echo copy /y wwwinamp-ruiner.ini $(OutDir)\wwwinamp.ini	copy /y .\wwwinamp-local.ini $(OutDir)\wwwinamp.ini
+PostBuild_Cmds=echo on	copy /y .\wwwinamp-local.ini $(OutDir)\wwwinamp.ini
 # End Special Build Tool
 
 !ENDIF 
@@ -130,6 +130,35 @@ SOURCE=.\IPC_PE.H
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=.\controls.bg.gif
+
+!IF  "$(CFG)" == "wwwinamp - Win32 Release"
+
+# Begin Custom Build - copy $(InputPath)
+OutDir=.\Release
+InputPath=.\controls.bg.gif
+
+"$(OutDir)/$(InputPath)" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy $(InputPath) "$(OutDir)/$(InputPath)"
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "wwwinamp - Win32 Debug"
+
+# Begin Custom Build - copy $(InputPath)
+OutDir=.\Debug
+InputPath=.\controls.bg.gif
+
+"$(OutDir)/$(InputPath)" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy $(InputPath) "$(OutDir)/$(InputPath)"
+
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=.\controls.gif
 
 !IF  "$(CFG)" == "wwwinamp - Win32 Release"
@@ -148,6 +177,64 @@ InputPath=.\controls.gif
 # Begin Custom Build - copy $(InputPath)
 OutDir=.\Debug
 InputPath=.\controls.gif
+
+"$(OutDir)/$(InputPath)" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy $(InputPath) "$(OutDir)/$(InputPath)"
+
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\controls.mp3j.gif
+
+!IF  "$(CFG)" == "wwwinamp - Win32 Release"
+
+# Begin Custom Build - copy $(InputPath)
+OutDir=.\Release
+InputPath=.\controls.mp3j.gif
+
+"$(OutDir)/$(InputPath)" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy $(InputPath) "$(OutDir)/$(InputPath)"
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "wwwinamp - Win32 Debug"
+
+# Begin Custom Build - copy $(InputPath)
+OutDir=.\Debug
+InputPath=.\controls.mp3j.gif
+
+"$(OutDir)/$(InputPath)" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy $(InputPath) "$(OutDir)/$(InputPath)"
+
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\folder.gif
+
+!IF  "$(CFG)" == "wwwinamp - Win32 Release"
+
+# Begin Custom Build - copy $(InputPath)
+OutDir=.\Release
+InputPath=.\folder.gif
+
+"$(OutDir)/$(InputPath)" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy $(InputPath) "$(OutDir)/$(InputPath)"
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "wwwinamp - Win32 Debug"
+
+# Begin Custom Build - copy $(InputPath)
+OutDir=.\Debug
+InputPath=.\folder.gif
 
 "$(OutDir)/$(InputPath)" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	copy $(InputPath) "$(OutDir)/$(InputPath)"
@@ -264,6 +351,35 @@ InputPath=.\readme_nullsoft.txt
 # Begin Custom Build - copy $(InputPath)
 OutDir=.\Debug
 InputPath=.\readme_nullsoft.txt
+
+"$(OutDir)/$(InputPath)" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy $(InputPath) "$(OutDir)/$(InputPath)"
+
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\spacer.gif
+
+!IF  "$(CFG)" == "wwwinamp - Win32 Release"
+
+# Begin Custom Build - copy $(InputPath)
+OutDir=.\Release
+InputPath=.\spacer.gif
+
+"$(OutDir)/$(InputPath)" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	copy $(InputPath) "$(OutDir)/$(InputPath)"
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "wwwinamp - Win32 Debug"
+
+# Begin Custom Build - copy $(InputPath)
+OutDir=.\Debug
+InputPath=.\spacer.gif
 
 "$(OutDir)/$(InputPath)" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	copy $(InputPath) "$(OutDir)/$(InputPath)"

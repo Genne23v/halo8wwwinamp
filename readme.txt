@@ -1,10 +1,22 @@
-WWWinamp v2.5d (Winamp Remote Control Server) - Sep 4 2001
-http://www.nullsoft.com/free/wwwinamp/
+Halo 8 WWWinamp v2.7.4
+Winamp Remote Control Server 
+http://projects.halo8.net/
+February 2 2003
 
-Copyright 1998-2001 Nullsoft, Inc.
+Copyright (c) 1998-2001 Nullsoft, Inc.
+Copyright (c) 2002-2003 Halo 8 Productions
 
 -------------------------------------------------------------------------------
-License
+S E C T I O N S
+-------------------------------------------------------------------------------
+
+1. License
+2. About
+3. Usage
+4. Using multiple instances of Winamp
+
+-------------------------------------------------------------------------------
+L I C E N S E
 -------------------------------------------------------------------------------
 
 Copyright (C) 1998-2001 Nullsoft, Inc.
@@ -25,9 +37,8 @@ freely, subject to the following restrictions:
    misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 
-
 -------------------------------------------------------------------------------
-About
+A B O U T
 -------------------------------------------------------------------------------
 
 WWWinamp is a simple web server-like application that allows remote control
@@ -43,10 +54,10 @@ lets you control who can do things like remove files from the queue, pause
 playback, and so on.
 
 -------------------------------------------------------------------------------
-Usage
+U S A G E
 -------------------------------------------------------------------------------
 
-To configure WWWinamp, first edit the configuration file (wwwinamp.ini) in your
+To configure WWWinamp, first the configuration file (wwwinamp.ini) in your
 Winamp directory. The installer should have created a start menu shortcut for
 that purpose.
 
@@ -60,17 +71,39 @@ port). If running on the local machine, use http://localhost/.
 
 For access to the second level of control, use http://hostname/admin/
 
-
 -------------------------------------------------------------------------------
-Notes
+U S I N G   M U L T I P L E   I N S T A N C E S   O F   W I N A M P
 -------------------------------------------------------------------------------
 
-This code has evolved over the course of about 3 years. It's kludgy, but works.
-C source is in source\ if your installer installed it.
+To configure wwwinamp to support muptiple instances of winamp, you're more than
+likely going to be hosting two or more shoutcast streams.  WWWinamp and Winamp will 
+work together, the right way, to run as many versions as you need using only 
+config files.  That is to say, you will only need one WWWinamp executable and 
+one Winamp executable located on your system.   However, as you already may know
+from configuring multiple shoutcast instances, you may need separate winamp/DSP 
+plugin executables for the shoutcast configuration.   Sadly, this is not under
+our control.
 
-That's it for now.
+Anywhoo, the way WWWinamp supports multiple Winamp versions is by using different 
+class names for the main winamp window.   You can specify the class name one of 2 
+ways.
 
-Love,
+1) Start winamp with the the correct configuration parameter, and make sure the 
+   parameter is the same specified in the WWWinamp configuration file.
 
-Justin Frankel
-justin@nullsoft.com
+   wwwinamp.ini
+   ------------
+   WinampClassName=MyWinampWindow
+
+   Start Winamp
+   ------------
+   C:\Program Files\Winamp\> winamp.exe /CLASS=MyWinampWindow
+
+2) Simply edit the wwwinamp configuration (as in example 1) and then start winamp 
+   from within the wwwinamp application.   
+
+NOTE: Because you are probally using multiple versions of Winamp, you may have the 
+"Allow Muliple Versions" settings turned on in Winamp's preferences.  We recommend
+you turn this setting off.   Winamp will start a new instance regarless of that setting
+if you pass it /new or /class=Something parameters.
+

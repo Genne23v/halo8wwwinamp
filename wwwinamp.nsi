@@ -1,5 +1,5 @@
 !define APP_VER_MAJOR 2
-!define APP_VER_MINOR 7.3a
+!define APP_VER_MINOR 7.6
 !define APP_PUBLISHER "Halo 8 Productions"
 !define APP_NAME "WWWinamp"
 !define APP_FOLDER "wwwinamp"
@@ -50,7 +50,11 @@ Section "${APP_NAME} (required)"
 	File wwwinamp.js
 	File readme_nullsoft.txt
 	File readme.txt
+	File spacer.gif
+	File folder.gif
 	File controls.gif
+	File controls.bg.gif
+	File controls.mp3j.gif
 
 	IfFileExists "$INSTDIR\wwwinamp.ini" 0 WriteAsNewName
 		File /oname=wwwinamp_${APP_VER_MAJOR}.${APP_VER_MINOR}.ini wwwinamp.ini

@@ -1,36 +1,36 @@
-
-FRAME {
-	border-color : 				#ff0000;
-	}
-
 PRE {
 	font-family: 				Lucida Console, Courier;
-	font-size: 					75%;
-	line-height: 				120%;
+	}
+TT {
+	font-family: 				Lucida Console, Courier;
 	}
 A:link {
-	color: 						#ffcc33;
+	color: 						#CCFFFF;
 	text-decoration: 			none;
 	}
-
 A:visited {
-	color: 						#ffcc33;
+	color: 						#CCFFFF;
 	text-decoration: 			none;
 	}
 
 A:hover {
-	color: 						#FFFF00;
+	color: 						#99FFFF;
 	text-decoration: 			underline;
 	}
 
-BODY {
-	font-family: 				Verdana;
-	overflow-X:					hidden;
-	font-size: 					90%; 
+BODY.loading {
+	background-color: 			#667788;
 	color: 						#ffffff;
+	text-align:					center:
+	vertical-align:				center:
+	font-size:					250%;
+	font-weight:				bold;
+	font-family:				Verdana,Arial;
 	}
 BODY.WWWinamp_left {
-	background-color: 			#224466;
+	color: 						#ffffff;
+	overflow-X:					hidden;
+	background-color: 			#667788;
 	scrollbar-3dlight-color: 	#ffffff;
 	scrollbar-highlight-color: 	#335577;
 	scrollbar-face-color: 		#335577;
@@ -40,24 +40,60 @@ BODY.WWWinamp_left {
 	scrollbar-track-color: 		#113355;
 	}
 BODY.WWWinamp_right {
- 	background-color: 			#000000;
-	scrollbar-3dlight-color: 	#FFCC00;
-	scrollbar-highlight-color: 	#000000;
-	scrollbar-face-color: 		#000000;
-	scrollbar-shadow-color: 	#000000;
-	scrollbar-darkshadow-color: #FFCC00;
-	scrollbar-arrow-color: 		#FFCC00;
-	scrollbar-track-color: 		#666666;
+	color: 						#ffffff;
+	overflow-X:					hidden;
+ 	background-color: 			#223344;
+	scrollbar-3dlight-color: 	#334455;
+	scrollbar-highlight-color: 	#8899AA;
+	scrollbar-face-color: 		#334455;
+	scrollbar-shadow-color: 	#8899AA;
+	scrollbar-darkshado	w-color: #334455;
+	scrollbar-arrow-color: 		#8899AA;
+	scrollbar-track-color: 		#001122;
 	}
 BODY.WWWinamp_control {
+	overflow-X:					hidden;
+	overflow-Y:					hidden;
 	padding:					0px;
 	margin:						0px;
- 	background-color: 			#ffcc33;
+ 	background: 				#666666 url(/controls.bg.gif);
 	color:						#000000;
+	}
+hr {
+	color: #000000;
+	}
+img {
+	border: #FFFF00;
+	}
+TABLE.l {
+	border:						0px;
+	padding:					5px;
+	border-collapse;			collapse;
+	width: 100%;
+	}
+
+TD.ld {
+	padding:					1px;
+	color:						#CCCCCC;
+	background:					#445566;
+	font-family:				Verdana,Arial;
+	font-size:					70%;
+	font-weight:				bold;
+	vertical-align:				center;
+	}
+TD.ca {
+	vertical-align:				top;
+	width: 1px;
+	}
+
+TD.l {
+	vertical-align:				top;
+	font-size: 					80%;
+	width:						100%;
 	}
 
 TD {
-	font-family: 				Tahoma,Verdana,Arial; 
+	font-family: 				Verdana,Arial; 
 	font-size: 					90%;
 	vertical-align:				middle;
 	}
@@ -69,72 +105,33 @@ TD.WWWinamp_right {
 	}
 
 INPUT {
-	background-color: 			#000000; 
-	font-family: 				Tahoma,Verdana,Arial; 
+	background-color: 			#445566; 
+	font-family: 				Verdana,Arial; 
 	font-size: 					75%; 
 	font-weight: 				bold;
-	color: 						#FFFF00;
-	border: 					1px #FFCC33 solid; 
+	color: 						#CCFFFF;
+	border: 					1px #FFFFFF solid; 
+	}
+.search {
+	font-family: 				Verdana,Arial; 
+	font-size: 					80%;
+	font-weight:				bold;
 	}
 .footer {
 	font-family: 				Verdana,Arial; 
-	font-size: 					75%;
+	font-size: 					60%;
 	}
-.symbols {
-	font-size:					120%; 
-	font-family:				WebDings;
+.Current {
+	vertical-align:				top;
 	}
-.symbols_resize {
-	font-size:					120%; 
-	font-family:				WebDings;
-	}
-A:link.symbols_resize {
-	color:						#000000;
-	text-decoration: 			none;
-	}
-A:visited.symbols_resize {
-	color:						#000000;
-	border:						1px #ffcc33 solid;
-	text-decoration: 			none;
-	}
-A:hover.symbols_resize {
-	background-color:			#FFBB22;
-	border:						1px #FF9900 solid;
-	color: 						#000000;
-	text-decoration: 			none;
-	}
-
-.current {
-	background-color: 			#990000;
+.CurrentBox {
+	background-color: 			#113355;
 	border: 					1px solid;
 	padding:					4;
 	}
 .CurrentSong {
-	color: 						#FFFF00;
+	color: 						#FFFFFF;
 	}
-
-.resizeControl {
-	border:						0px;
-	border-collapse:			collapse;
-	margin:						0px;
-	padding:					0px;
-	font-family: 				Verdana,Arial; 
-	font-size:					70%;
-	font-weight: 				bold;
-	color: 						#663300;
-	vertical-align:				top;
-	}
-.resizeControl a, .resizeControl a:visited, .resizeControl a:hover {
-	color: 						#000000;
-	}
-.sI {
-	background-color:			#FFFFCC;
-	font-size:					90%;
-	border:						1px #000000 solid;
-	color:						#000000;
-	padding:					3px;
-	position:					relative;
-	z-index:					9999999;
-    visibility:					hidden;
-	font-family: 				Tahoma,Verdana,Arial; 
+.inactive {
+	color:						#999999;
 	}

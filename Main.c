@@ -1549,6 +1549,7 @@ void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, stru
 							"<input type=hidden name=\"m\" value=\"right\">\n"
 							"<input type=hidden name=\"q\" value=\"*\">\n"
 							"<td><input type=submit value=\"Show All\"></td>\n"
+
 							"</form>\n"
 							,thisurl);
 						sock_printf( sock,
@@ -1641,10 +1642,10 @@ void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, stru
 
 							if (nf) {
 								sock_printf( sock, "<div class=search>" );
-								if (start>0) sock_printf( sock, "<a href=\"%s?m=right&s=%s&ss=%d\">&laquo; last &laquo;</a>", thisurl, search, max(start-pagesize,0) );
+								if (start>0) sock_printf( sock, "<a href=\"%s?m=right&q=%s&ss=%d\">&laquo; last &laquo;</a>", thisurl, search, max(start-pagesize,0) );
 								else sock_printf( sock, "<span class=inactive>&laquo; last</a> &laquo;</span>");
 								sock_printf( sock, " Showing %d of %d item%s ", min(pagesize,nf-start), nf,nf==1?"":"s" );
-								if (nf > start+pagesize) sock_printf( sock, "<a href=\"%s?m=right&s=%s&ss=%d\">&raquo; next &raquo;</a>", thisurl, search, start+pagesize );
+								if (nf > start+pagesize) sock_printf( sock, "<a href=\"%s?m=right&q=%s&ss=%d\">&raquo; next &raquo;</a>", thisurl, search, start+pagesize );
 								else sock_printf( sock, "<span class=inactive>&raquo; next &raquo;</span>" );
 								sock_printf( sock, "</div>" );
 								}

@@ -93,8 +93,8 @@
 */
 
 
-//#define WWWA_LANG_ENGLISH //un-comment desired language
-#define WWWA_LANG_SPANISH //un-comment desired language
+#define WWWA_LANG_ENGLISH //un-comment desired language
+//#define WWWA_LANG_SPANISH //un-comment desired language
 
 #ifdef WWWA_LANG_ENGLISH 
  #define SHOW_ALL "Show All"
@@ -2038,14 +2038,14 @@ void http_handlereq(char *url, char *user_agent, char *encodedlp, int sock, stru
 									if (tp > buf && *tp == '.') *tp=0;
 									while (tp >= buf && *tp != '\\' && *tp != '/') tp--;
 									tp++;
-									switch (g_FileHlinkMode) {
+									switch (is_adm?g_FileHlinkMode:0) {
 										case 1: // 2=FileLink cue file 
 											sock_printf( sock, "<a title=\"" click_to_cue "\" href=\"%s?o=cue&a=%d\" target=wwLeft ", thisurl, x );
 											break;
 										case 2: // 2=FileLink cua and play now
 											sock_printf( sock, "<a title=\"" click_to_cue_play "\" href=\"%s?o=cue&q=now&a=%d\" target=wwLeft ", thisurl, x );
 											break;
-										default: // 1=FileLink adds file to the current list
+										default: // 0=FileLink adds file to the current list
 											sock_printf( sock, "<a title=\"" click_to_add_file "\" href=\"%s?o=add&a=%d\" target=wwLeft ", thisurl, x ); 
 									}
 									if (showLists) sock_printf( sock, " onclick=\"SaveListForm.q.value='%s';\"", tp );

@@ -127,7 +127,15 @@ INPUT {
 .CurrentBox {
 	background-color: 			#113355;
 	border: 					1px solid;
-	padding:					4;
+	padding:					4px;
+	margin-left: 20px;
+	margin-right: 3px;
+	margin-top: 3px;
+	margin-bottom: 3px;
+	}
+.OuterCurrentBox {
+	border: 1px none;
+	padding:					4px;
 	}
 .CurrentSong {
 	color: 						#FFFFFF;

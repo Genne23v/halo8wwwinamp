@@ -1,0 +1,119 @@
+
+FRAME {
+	border-color : 				#ff0000;
+	}
+
+PRE {
+	font-family: 				Lucida Console, Courier;
+	font-size: 					10 px;
+	line-height: 				130%
+	}
+A:link {
+	color: 						#ffcc33;
+	text-decoration: 			none;
+	}
+
+A:visited {
+	color: 						#ffcc33;
+	text-decoration: 			none;
+	}
+
+A:hover {
+	color: 						#FFFF00;
+	text-decoration: 			none;
+	}
+
+BODY {
+	font-family: 				Verdana;
+	font-size: 					10 px; 
+	color: 						#ffffff;
+	scrollbar-3dlight-color: 	#ffffff;
+	scrollbar-highlight-color: 	#335577;
+	scrollbar-face-color: 		#335577;
+	scrollbar-shadow-color: 	#335577;
+	scrollbar-darkshadow-color: #FFFFFF;
+	scrollbar-arrow-color: 		#FFFFFF;
+	scrollbar-track-color: 		#113355;
+	}
+BODY.WWWinamp_left {
+	background-color: 			#224466;
+	}
+BODY.WWWinamp_right {
+ 	background-color: 			#000000;
+	}
+BODY.WWWinamp_middle {
+	padding:					0px;
+	margin:						0px;
+ 	background-color: 			#ffcc33;
+	color:						#000000;
+	}
+
+TD {
+	font-family: 				Tahoma,Verdana,Arial; 
+	font-size: 					10 px; 
+	vertical-align:				middle;
+	}
+TD.WWWinamp_left {
+	background-color: 			#224466;
+	}
+TD.WWWinamp_right {
+ 	background-color: 			#000000;
+	}
+
+INPUT {
+	background-color: 			#000000; 
+	font-family: 				Tahoma,Verdana,Arial; 
+	font-size: 					8pt; 
+	font-weight: 				bold;
+	color: 						#FFFF00;
+	border: 					1px #FFCC33 solid; 
+	}
+.symbols {
+	font-size:					14px; 
+	font-family:				WebDings;
+	}
+.symbols_resize {
+	font-size:					14px; 
+	font-family:				WebDings;
+	}
+A:link.symbols_resize {
+	color:						#000000;
+	text-decoration: 			none;
+	}
+A:visited.symbols_resize {
+	color:						#000000;
+	border:						1px #ffcc33 solid;
+	text-decoration: 			none;
+	}
+A:hover.symbols_resize {
+	background-color:			#FFBB22;
+	border:						1px #FF9900 solid;
+	color: 						#000000;
+	text-decoration: 			none;
+	}
+
+.control {
+	background-color: 			#335577;
+	border: 					1px solid;
+	padding:					10px;
+	}
+.CurrentSong {
+	color: 						#FFFF00;
+	}
+
+.resizeControl {
+	position:					relative;
+	top: 						-8;
+	line-height:				1;
+	}
+.sI {
+	background-color:			#FFFFCC;
+	font-size:					10px;
+	border:						1px #000000 solid;
+	color:						#000000;
+	padding:					3px;
+	position:					relative;
+	z-index:					9999999;
+    visibility:					hidden;
+	font-family: 				Tahoma,Verdana,Arial; 
+	}
